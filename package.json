@@ -17,6 +17,7 @@
   "license": "GPL-3.0",
   "dependencies": {
     "three": "^0.94.0",
-    "three-gltf-loader": "^1.95.0"
+    "three-gltf-loader": "^1.95.0",
+    "three-orbit-controls": "^82.1.0"
   }
 }

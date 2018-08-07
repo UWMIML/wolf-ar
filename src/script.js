@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import GLTFLoader from 'three-gltf-loader';
+import OrbitControls from 'three-orbit-controls';
 // import WEBVR from './WebVR';
-import cameraZoomTo from './cameraZoomTo';
 import riggedWolfGLTF from './rigged-wolf.gltf';
 
 const ready = cb => {
@@ -21,7 +21,7 @@ const windowResize = (renderer, camera) => {
 ready(function() {
   const [ windowWidth, windowHeight ] = [ window.innerWidth, window.innerHeight ];
   // Set up renderer
-  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(windowWidth, windowHeight);
   // renderer.vr.enabled = true;
@@ -41,7 +41,11 @@ ready(function() {
 
   // Add camera
   const camera = new THREE.PerspectiveCamera(45, windowWidth / windowHeight, 1, 1000);
-  // camera.position.z = 60;
+  camera.position.z = 400;
+
+  // Controls
+  const _orbitControls = OrbitControls(THREE);
+  const controls = new _orbitControls(camera);
 
   // Update dimensions on resize
   windowResize(renderer, camera)
@@ -49,31 +53,23 @@ ready(function() {
   // Prepare geometries and meshes
   const loader = new GLTFLoader();
   loader.load(riggedWolfGLTF, gltf => {
-    console.log("Test whole gltf", gltf);
-    const children = [];
-    gltf.scene.traverse(child => {
-      console.log(child);
-
-      if(child.isMesh){
-        console.log("Found child mesh");
-        cameraZoomTo(camera, child);
-        console.log(camera.position.z);
-        children.push(child);
-      }
-    })
-    children.forEach(child => scene.add(child.clone()));
-    gltf.scene.scale.setScalar(.25);
-    // scene.add(gltf.scene);
+    const object = gltf.scene;
+    const gltfAnimation = gltf.animations;
+    object.rotateY(40);
+    scene.add(object);
+    if(gltfAnimation && gltfAnimation.length) {
+      const mixer = new THREE.AnimationMixer(object);
+      gltfAnimation.forEach((animation, index) => {
+        const clipAction = mixer.clipAction(animation);
+        console.log(clipAction);
+        clipAction.play();
+      });
+    }
   });
-
-  // Debug cube
-  const boxGeometry = new THREE.BoxGeometry(100, 100, 100);
-  const boxMaterial = new THREE.MeshNormalMaterial();
-  const cube = new THREE.Mesh(boxGeometry, boxMaterial);
-  scene.add(cube);
 
   // render scene
   const render = () => {
+    controls.update();
     renderer.render(scene, camera);
   };
   renderer.setAnimationLoop(render);
