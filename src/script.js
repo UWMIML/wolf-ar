@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import GLTFLoader from 'three-gltf-loader';
 import WEBVR from './WebVR';
+import cameraZoomTo from './cameraZoomTo';
 import riggedWolfGLTF from './rigged-wolf.gltf';
 
 const ready = cb => {
@@ -32,13 +33,15 @@ ready(function() {
   const scene = new THREE.Scene();
 
   // Add light to scene
-  const light = new THREE.HemisphereLight(0xfff0f0, 0x606066)
-  light.position.set(1, 1, 1);
-  scene.add(light);
+  const hemlight = new THREE.HemisphereLight(0xfff0f0, 0x606066)
+  const amblight = new THREE.AmbientLight(0x404040);
+  hemlight.position.set(1, 1, 1);
+  scene.add(hemlight);
+  scene.add(amblight);
 
   // Add camera
   const camera = new THREE.PerspectiveCamera(45, windowWidth / windowHeight, 1, 1000);
-  camera.position.set(0, 0, 60);
+  // camera.position.z = 60;
 
   // Update dimensions on resize
   windowResize(renderer, camera)
@@ -53,10 +56,12 @@ ready(function() {
 
       if(child.isMesh){
         console.log("Found child mesh");
+        cameraZoomTo(camera, child);
         children.push(child);
       }
     })
     children.forEach(child => scene.add(child));
+    gltf.scene.scale.setScalar(.25);
     // scene.add(gltf.scene);
   });
   // render scene

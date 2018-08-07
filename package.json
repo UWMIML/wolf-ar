@@ -4,8 +4,8 @@
   "description": "webvr template for IML",
   "scripts": {
     "postinstall": "npm i -g parcel-bundler",
-    "start": "rm -rf .serve && parcel serve -d .serve index.html",
-    "build": "rm -rf docs/box* && parcel build -d docs --public-url ./ src/script.js"
+    "start": "parcel serve -d .serve index.html",
+    "build": "parcel build -d docs --public-url ./ src/script.js"
   },
   "keywords": [
     "vr",
