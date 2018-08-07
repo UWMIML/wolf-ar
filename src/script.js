@@ -57,6 +57,15 @@ ready(function() {
     const gltfAnimation = gltf.animations;
     object.rotateY(40);
     scene.add(object);
+    object.traverse(node => {
+      console.log(node);
+      if(node.material && 'envMap' in node.material){
+        // Set up an environment with pictures if available
+        node.material.envMap = null;
+        node.material.needsUpdate = true;
+        node.material.wireframe = true;
+      }
+    });
     if(gltfAnimation && gltfAnimation.length) {
       const mixer = new THREE.AnimationMixer(object);
       gltfAnimation.forEach((animation, index) => {
