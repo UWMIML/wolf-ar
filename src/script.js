@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import GLTFLoader from 'three-gltf-loader';
-import WEBVR from './WebVR';
+// import WEBVR from './WebVR';
 import cameraZoomTo from './cameraZoomTo';
 import riggedWolfGLTF from './rigged-wolf.gltf';
 
@@ -24,10 +24,10 @@ ready(function() {
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(windowWidth, windowHeight);
-  renderer.vr.enabled = true;
-  renderer.vr.userHeight = 0;
+  // renderer.vr.enabled = true;
+  // renderer.vr.userHeight = 0;
   document.body.appendChild(renderer.domElement);
-  document.body.appendChild( WEBVR.createButton( renderer, { frameOfReferenceType: 'eye-level' } ) );
+  // document.body.appendChild( WEBVR.createButton( renderer, { frameOfReferenceType: 'eye-level' } ) );
 
   // Set up scene
   const scene = new THREE.Scene();
@@ -57,13 +57,21 @@ ready(function() {
       if(child.isMesh){
         console.log("Found child mesh");
         cameraZoomTo(camera, child);
+        console.log(camera.position.z);
         children.push(child);
       }
     })
-    children.forEach(child => scene.add(child));
+    children.forEach(child => scene.add(child.clone()));
     gltf.scene.scale.setScalar(.25);
     // scene.add(gltf.scene);
   });
+
+  // Debug cube
+  const boxGeometry = new THREE.BoxGeometry(100, 100, 100);
+  const boxMaterial = new THREE.MeshNormalMaterial();
+  const cube = new THREE.Mesh(boxGeometry, boxMaterial);
+  scene.add(cube);
+
   // render scene
   const render = () => {
     renderer.render(scene, camera);
