@@ -3,6 +3,10 @@ import GLTFLoader from 'three-gltf-loader';
 import OrbitControls from 'three-orbit-controls';
 // import WEBVR from './WebVR';
 import riggedWolfGLTF from './rigged-wolf.gltf';
+import wolfAlbedo from './img/wolf-albedo.png';
+import wolfGloss from './img/wolf-gloss.png';
+import wolfSpec from './img/wolf-spec.png';
+import wolfNormal from './img/wolf-normal.png';
 
 const ready = cb => {
   /in/.test(document.readyState) // in = loadINg
@@ -26,6 +30,9 @@ ready(function() {
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(windowWidth, windowHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.gammaOutput = true;
   // renderer.vr.enabled = true;
   // renderer.vr.userHeight = 0;
   document.body.appendChild(renderer.domElement);
@@ -33,14 +40,19 @@ ready(function() {
 
   // Set up scene
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xdddddd);
+  scene.background = new THREE.Color(0xaaaaaa);
 
   // Add light to scene
-  const hemlight = new THREE.HemisphereLight(0xfff0f0, 0x606066)
-  const amblight = new THREE.AmbientLight(0x404040);
+  const hemlight = new THREE.HemisphereLight(0xfff0f0, 0x606066, 0.5);
+  const spotlight = new THREE.SpotLight(0xffffff);
   hemlight.position.set(1, 1, 1);
+  spotlight.position.set(10000, 10000, 50000);
+  spotlight.castShadow = true;
+  spotlight.shadow.bias = 0.0001;
+  spotlight.shadow.mapSize.width = 2048;
+  spotlight.shadow.mapSize.height = 2048;
   scene.add(hemlight);
-  scene.add(amblight);
+  scene.add(spotlight);
 
   // Add camera
   const camera = new THREE.PerspectiveCamera(45, windowWidth / windowHeight, 1, 1000);
@@ -63,13 +75,18 @@ ready(function() {
     object.traverse(node => {
       if(node.material && 'envMap' in node.material){
         console.log(node);
+        const albedoTexture = new THREE.TextureLoader().load(wolfAlbedo);
+        const normalTexture = new THREE.TextureLoader().load(wolfNormal);
+        const specularityTexture = new THREE.TextureLoader().load(wolfSpec);
+        node.material.normalMap = normalTexture;
+        node.material.map = albedoTexture;
+        node.material.lightMap = specularityTexture;
         node.material.envMap = null;
         node.material.needsUpdate = true;
-        node.material.wireframe = true;
+        // node.material.wireframe = true;
       }
     });
     if(gltfAnimation && gltfAnimation.length) {
-      console.log("Animation: ", gltfAnimation);
       mixer = new THREE.AnimationMixer(object);
       gltfAnimation.forEach(animation => {
         mixer.clipAction(animation).play();
