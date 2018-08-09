@@ -45,8 +45,8 @@ ready(function() {
   // Add light to scene
   const hemlight = new THREE.HemisphereLight(0xfff0f0, 0x606066, 0.5);
   const spotlight = new THREE.SpotLight(0xffffff);
-  hemlight.position.set(1, 1, 1);
-  spotlight.position.set(10000, 10000, 50000);
+  hemlight.position.set(10, 10, 10);
+  spotlight.position.set(10000, 10000, 10000);
   spotlight.castShadow = true;
   spotlight.shadow.bias = 0.0001;
   spotlight.shadow.mapSize.width = 2048;
