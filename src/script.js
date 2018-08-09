@@ -19,9 +19,11 @@ const windowResize = (renderer, camera) => {
 };
 
 ready(function() {
+  let mixer;
+  const clock = new THREE.Clock();
   const [ windowWidth, windowHeight ] = [ window.innerWidth, window.innerHeight ];
   // Set up renderer
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(windowWidth, windowHeight);
   // renderer.vr.enabled = true;
@@ -31,6 +33,7 @@ ready(function() {
 
   // Set up scene
   const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xdddddd);
 
   // Add light to scene
   const hemlight = new THREE.HemisphereLight(0xfff0f0, 0x606066)
@@ -48,7 +51,7 @@ ready(function() {
   const controls = new _orbitControls(camera);
 
   // Update dimensions on resize
-  windowResize(renderer, camera)
+  window.onresize = windowResize(renderer, camera);
 
   // Prepare geometries and meshes
   const loader = new GLTFLoader();
@@ -58,20 +61,19 @@ ready(function() {
     object.rotateY(40);
     scene.add(object);
     object.traverse(node => {
-      console.log(node);
       if(node.material && 'envMap' in node.material){
-        // Set up an environment with pictures if available
+        console.log(node);
         node.material.envMap = null;
         node.material.needsUpdate = true;
         node.material.wireframe = true;
       }
     });
     if(gltfAnimation && gltfAnimation.length) {
-      const mixer = new THREE.AnimationMixer(object);
-      gltfAnimation.forEach((animation, index) => {
-        const clipAction = mixer.clipAction(animation);
-        console.log(clipAction);
-        clipAction.play();
+      console.log("Animation: ", gltfAnimation);
+      mixer = new THREE.AnimationMixer(object);
+      gltfAnimation.forEach(animation => {
+        mixer.clipAction(animation).play();
+        animate(renderer);
       });
     }
   });
@@ -79,7 +81,10 @@ ready(function() {
   // render scene
   const render = () => {
     controls.update();
+    mixer.update(0.75 * clock.getDelta());
     renderer.render(scene, camera);
-  };
-  renderer.setAnimationLoop(render);
+  }
+  const animate = renderer => {
+    renderer.setAnimationLoop(render);
+  }
 });
