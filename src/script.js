@@ -1,10 +1,9 @@
 import * as THREE from 'three';
 import GLTFLoader from 'three-gltf-loader';
 import OrbitControls from 'three-orbit-controls';
-// import WEBVR from './WebVR';
+import * as THREEx from 'ar.js/three.js/build/ar';
 import riggedWolfGLTF from './rigged-wolf.gltf';
 import wolfAlbedo from './img/wolf-albedo.png';
-import wolfGloss from './img/wolf-gloss.png';
 import wolfSpec from './img/wolf-spec.png';
 import wolfNormal from './img/wolf-normal.png';
 
@@ -23,6 +22,7 @@ const windowResize = (renderer, camera) => {
 };
 
 ready(function() {
+  console.log(THREEx.ArToolkitSource);
   let mixer;
   const clock = new THREE.Clock();
   const [ windowWidth, windowHeight ] = [ window.innerWidth, window.innerHeight ];
@@ -63,7 +63,7 @@ ready(function() {
   const controls = new _orbitControls(camera);
 
   // Update dimensions on resize
-  window.onresize = windowResize(renderer, camera);
+  window.onresize = () => windowResize(renderer, camera);
 
   // Prepare geometries and meshes
   const loader = new GLTFLoader();

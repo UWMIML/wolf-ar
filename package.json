@@ -16,6 +16,7 @@
   "author": "Joseph Rex <silverdust>",
   "license": "GPL-3.0",
   "dependencies": {
+    "ar.js": "^1.4.10",
     "three": "^0.94.0",
     "three-gltf-loader": "^1.95.0",
     "three-orbit-controls": "^82.1.0"
