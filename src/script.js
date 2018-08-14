@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import GLTFLoader from 'three-gltf-loader';
 import OrbitControls from 'three-orbit-controls';
-import * as THREEx from 'ar.js/three.js/build/ar';
+import * as THREEx from 'ar.js/three.js/build/cjs';
 import riggedWolfGLTF from './rigged-wolf.gltf';
 import wolfAlbedo from './img/wolf-albedo.png';
 import wolfSpec from './img/wolf-spec.png';
@@ -22,7 +22,7 @@ const windowResize = (renderer, camera) => {
 };
 
 ready(function() {
-  console.log(THREEx.ArToolkitSource);
+  console.log(THREEx.ArToolKitSource);
   let mixer;
   const clock = new THREE.Clock();
   const [ windowWidth, windowHeight ] = [ window.innerWidth, window.innerHeight ];
@@ -65,6 +65,20 @@ ready(function() {
   // Update dimensions on resize
   window.onresize = () => windowResize(renderer, camera);
 
+  // render scene
+  const render = () => {
+    controls.update();
+    mixer.update(0.75 * clock.getDelta());
+    if(arToolkitSource.ready){
+      arToolkitContext.update(arToolkitSource.domElement);
+    }
+    scene.visible = camera.visible;
+    renderer.render(scene, camera);
+  }
+  const animate = renderer => {
+    renderer.setAnimationLoop(render);
+  }
+
   // Prepare geometries and meshes
   const loader = new GLTFLoader();
   loader.load(riggedWolfGLTF, gltf => {
@@ -95,13 +109,24 @@ ready(function() {
     }
   });
 
-  // render scene
-  const render = () => {
-    controls.update();
-    mixer.update(0.75 * clock.getDelta());
-    renderer.render(scene, camera);
-  }
-  const animate = renderer => {
-    renderer.setAnimationLoop(render);
-  }
+  // AR.js
+  const arToolkitSource = new THREEx.ArToolKitSource({
+    sourceType: 'webcam'
+  });
+  arToolkitSource.init(function onReady() {
+    arToolkitSource.copySizeTo(renderer.domElement);
+  });
+  const arToolkitContext = new THREEx.ArToolKitContext({
+    cameraParameterUrl: './camera_para.dat',
+    detectionMode: 'mono',
+  });
+  arToolkitContext.init(function onCompleted(){
+    camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix());
+  });
+  const markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
+    type: 'pattern',
+    patternUrl: './patt.hiro',
+    changeMatrixMode: 'cameraTransformMatrix'
+  });
+  // scene.visible = false;
 });
