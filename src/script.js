@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import GLTFLoader from 'three-gltf-loader';
 import OrbitControls from 'three-orbit-controls';
-import * as THREEx from 'ar.js/three.js/build/cjs';
+import * as THREEx from 'ar.js';
 import riggedWolfGLTF from './rigged-wolf.gltf';
 import wolfAlbedo from './img/wolf-albedo.png';
 import wolfSpec from './img/wolf-spec.png';
@@ -114,7 +114,7 @@ ready(function() {
     sourceType: 'webcam'
   });
   arToolkitSource.init(function onReady() {
-    arToolkitSource.copySizeTo(renderer.domElement);
+    arToolkitSource.copyElementSizeTo(renderer.domElement);
   });
   const arToolkitContext = new THREEx.ArToolKitContext({
     cameraParameterUrl: './camera_para.dat',
